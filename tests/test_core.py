@@ -66,6 +66,20 @@ class TestSources(unittest.TestCase):
         self.assertEqual(tasks[0].id, "1")
         self.assertIn("question", tasks[0].payload)
 
+    def test_file_source_empty_list(self):
+        """Тестируем чтение из файла с пустым списком []"""
+        with open(self.test_file_name, "w", encoding="utf-8") as f:
+            json.dump([], f)
+
+        source = FileSource(self.test_file_name)
+        tasks = source.get_tasks()
+        self.assertEqual(tasks, [])
+
+    def test_generator_zero_count(self):
+        """Тестируем генератор с нулевым количеством задач"""
+        source = GeneratorSource(count=0)
+        self.assertEqual(len(source.get_tasks()), 0)
+
 
 class TestTaskSystem(unittest.TestCase):
 
@@ -104,6 +118,12 @@ class TestTaskSystem(unittest.TestCase):
         tasks = self.system.collect_tasks()
 
         self.assertEqual(len(tasks), 4)
+
+    def test_collect_tasks_no_sources(self):
+        """Тестируем сбор задач, когда источники еще не добавлены"""
+        tasks = self.system.collect_tasks()
+        self.assertEqual(tasks, [])
+        self.assertIsInstance(tasks, list)
 
 
 if __name__ == '__main__':
