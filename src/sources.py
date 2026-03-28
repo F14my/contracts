@@ -1,6 +1,7 @@
 from src.models import Task
 import json
 import time
+import random
 
 
 class FileSource:
@@ -12,7 +13,12 @@ class FileSource:
     def get_tasks(self) -> list[Task]:
         with open(self.file_name, "r", encoding="utf-8") as f:
             data = json.load(f)
-        return [Task(id=str(item["id"]), payload=item["payload"]) for item in data]
+
+        return [
+            Task(task_id=int(item["task_id"]),
+                 description=item["description"],
+                 priority=item["priority"],
+                 status=item["status"]) for item in data]
 
 
 class GeneratorSource:
@@ -22,10 +28,13 @@ class GeneratorSource:
         self.count = count
 
     def get_tasks(self) -> list[Task]:
-        return [Task(id=f"id_{i}", payload={"q": f"generated_question_{i}", "a": f"generated_answer_{i}"}) for i in
-                range(self.count)]
-
-
+        return [Task(
+            task_id=i,
+            description=f"some_good_description_{i}",
+            priority=random.randint(1, 10),
+            status=random.choice(["PENDING", "IN_PROGRESS", "DONE", "CANCELED"])) for i in range(self.count)]
+#
+#
 class ApiSource:
     """API-заглушка, имитирующая получение задач через API"""
 
@@ -34,29 +43,31 @@ class ApiSource:
         self._mock_json_response = '''
             [
               {
-                "id": "1",
-                "payload": {
-                  "question": "1 + 1 = ?",
-                  "answer": "2"
-                }
+                "task_id": 1,
+                "description": "some_good_description_1",
+                "priority": 1,
+                "status": "PENDING"
               },
               {
-                "id": "2",
-                "payload": {
-                  "question": "2 + 2 = ?",
-                  "answer": "4"
-                }
+                "task_id": 2,
+                "description": "some_good_description_2",
+                "priority": 2,
+                "status": "DONE"
               }
             ]
         '''
 
     def get_tasks(self) -> list[Task]:
         print(f"Подключение к {self.endpoint_url}...")
-        time.sleep(1.5)
+        time.sleep(1)
         raw_data = json.loads(self._mock_json_response)
         tasks = []
         for item in raw_data:
-            task_id = item.pop("id")
-            task = Task(id=task_id, payload=item["payload"])
+            task = Task(
+                task_id=item["task_id"],
+                description=item["description"],
+                priority=item["priority"],
+                status=item["status"]
+            )
             tasks.append(task)
         return tasks

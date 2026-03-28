@@ -7,8 +7,10 @@ import os
 def create_dummy_json():
     """Создает тестовый JSON файл для FileSource"""
     data = [
-        {"id": "file_1", "payload": {"task": "Прочитать главу 1"}},
-        {"id": "file_2", "payload": {"task": "Решить уравнения"}}
+        {"task_id": 1, "description": "some_description", "priority": 1, "status": "PENDING"},
+        {"task_id": 2, "description": "some_description2", "priority": 2, "status": "DONE"},
+        {"task_id": 3, "description": "some_description3", "priority": 3, "status": "CANCELED"},
+        {"task_id": 4, "description": "some_description4", "priority": 4, "status": "IN_PROGRESS"},
     ]
     with open("test.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -36,7 +38,7 @@ def main():
     tasks = system.collect_tasks()
 
     for task in tasks:
-        print(f"ID: {task.id} | Data: {task.payload}")
+        print(task)
 
     delete_dummy_json()
 
