@@ -75,7 +75,7 @@ class Task:
         """Время создания (только для чтения)"""
         return self._created_at
 
-    @property
+    @LazyComputedProperty
     def is_ready(self) -> bool:
         """
         Вычисляемое свойство: Готова ли задача к выполнению.
