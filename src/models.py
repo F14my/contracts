@@ -22,7 +22,7 @@ class Task:
         status: Текущий статус
         created_at: Время создания
     """
-
+    __slots__ = ('_id', '_description', '_priority', '_status', '_created_at')
     id = IdDescriptor()
     description = ValidatedString(min_length=1, max_length=500)
     priority = PriorityDescriptor()
