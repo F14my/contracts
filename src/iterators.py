@@ -1,4 +1,3 @@
-from typing import List
 from src.models import Task
 
 
@@ -11,7 +10,7 @@ class TaskQueueIterator:
     __next__() возвращает следующую задачу или StopIteration
     """
 
-    def __init__(self, tasks: List[Task]):
+    def __init__(self, tasks: list[Task]):
         """
         Инициализация итератора.
 
