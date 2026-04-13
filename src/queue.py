@@ -38,7 +38,7 @@ class TaskQueue:
         Returns:
             TaskQueueIterator: Новый экземпляр итератора
         """
-        return TaskQueueIterator(self._tasks.copy())
+        return TaskQueueIterator(self._tasks)
 
     def __len__(self) -> int:
         """Количество задач в очереди."""
