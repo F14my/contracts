@@ -59,7 +59,7 @@ class TestSources(unittest.TestCase):
 
     def test_api_source(self):
         """Тестируем ApiSource на корректный парсинг встроенного ответа"""
-        source = ApiSource("http://fake.api")
+        source = ApiSource("http://fake.api", delay_seconds=0)
         tasks = source.get_tasks()
 
         self.assertTrue(len(tasks) > 0)
@@ -110,7 +110,7 @@ class TestTaskSystem(unittest.TestCase):
     def test_collect_tasks_multiple_sources(self):
         """Тестируем объединение задач из разных источников"""
         gen_source = GeneratorSource(count=2)
-        api_source = ApiSource("http://fake.api")
+        api_source = ApiSource("http://fake.api", delay_seconds=0)
 
         self.system.register_source(gen_source)
         self.system.register_source(api_source)

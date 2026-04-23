@@ -29,8 +29,9 @@ class GeneratorSource:
 class ApiSource:
     """API-заглушка, имитирующая получение задач через API"""
 
-    def __init__(self, endpoint_url: str):
+    def __init__(self, endpoint_url: str, delay_seconds: float = 1.5):
         self.endpoint_url = endpoint_url
+        self.delay_seconds = delay_seconds
         self._mock_json_response = '''
             [
               {
@@ -52,7 +53,7 @@ class ApiSource:
 
     def get_tasks(self) -> list[Task]:
         print(f"Подключение к {self.endpoint_url}...")
-        time.sleep(1.5)
+        time.sleep(self.delay_seconds)
         raw_data = json.loads(self._mock_json_response)
         tasks = []
         for item in raw_data:

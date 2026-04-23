@@ -5,7 +5,7 @@ import os
 
 
 def create_dummy_json():
-    """Создает тестовый JSON файл для FileSource"""
+    """Создает локальный JSON-файл с тестовыми задачами для FileSource."""
     data = [
         {"id": "file_1", "payload": {"task": "Прочитать главу 1"}},
         {"id": "file_2", "payload": {"task": "Решить уравнения"}}
@@ -13,19 +13,21 @@ def create_dummy_json():
     with open("test.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
+
 def delete_dummy_json():
-    """Удаляет тестовый JSON файл"""
+    """Удаляет временный тестовый JSON-файл из текущей директории."""
     os.remove("test.json")
 
 
 def main():
+    """Запускает демо: регистрирует источники задач, собирает и выводит результат."""
     create_dummy_json()
 
     system = TaskSystem()
 
     file_source = FileSource("test.json")
     gen_source = GeneratorSource(count=2)
-    api_source = ApiSource("https://api.example.com/tasks")
+    api_source = ApiSource("https://api.example.com/tasks", delay_seconds=0)
 
     print("Регистрация источников")
     system.register_source(file_source)
