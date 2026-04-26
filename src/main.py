@@ -1,83 +1,53 @@
+import asyncio
+import logging
+from src.async_executor import AsyncTaskExecutor, BaseTaskHandler
 from src.models import Task, TaskStatus
 from src.queue import TaskQueue
 
 
-def generate_sample_tasks(count: int = 10):
-    """Генератор задач"""
-    for i in range(count):
-        yield Task(
-            task_id=i + 1,
-            description=f"Task {i + 1}",
-            priority=(i % 10) + 1,
-            status=list(TaskStatus)[i % 4]
-        )
+class ReadyTaskHandler(BaseTaskHandler):
+    """Обработчик задач, готовых к выполнению (PENDING + priority >= 5)."""
+
+    def can_handle(self, task: Task) -> bool:
+        return task.is_ready
+
+    async def handle(self, task: Task) -> None:
+        await asyncio.sleep(0)
+        task.status = TaskStatus.IN_PROGRESS
 
 
-def demo_basic_iteration():
-    """Демонстрация базовой итерации"""
-    print("Базовая итерация")
+class FallbackTaskHandler(BaseTaskHandler):
+    """Обработчик для остальных задач."""
 
-    queue = TaskQueue()
-    queue.add(Task(1, "Deploy prod", priority=10))
-    queue.add(Task(2, "Fix bug", priority=5))
-    queue.add(Task(3, "Update docs", priority=2))
+    def can_handle(self, task: Task) -> bool:
+        return True
 
-    print("Все задачи:")
-    for task in queue:
-        print(f"{task.id}: {task.description} (prio={task.priority})")
-
-    print("Повторная итерация")
-    count = sum(1 for _ in queue)
-    print(f"Всего задач: {count}")
+    async def handle(self, task: Task) -> None:
+        await asyncio.sleep(0)
 
 
-def demo_lazy_filtering():
-    """Демонстрация ленивой фильтрации."""
-    print("\nЛенивая фильтрация")
+async def demo_async_executor() -> None:
+    """
+    Демонстрация
 
-    queue = TaskQueue(generate_sample_tasks(20))
+    Использует:
+        - Task из models.py;
+        - TaskQueue;
+        - AsyncTaskExecutor.
+    """
+    logging.basicConfig(level=logging.INFO)
 
-    print("Задачи со статусом PENDING:")
-    for task in queue.filter_by_status(TaskStatus.PENDING):
-        print(f"{task.id}: {task.description}")
-
-    print("Высокий приоритет (>= 8):")
-    for task in queue.filter_by_priority(min_priority=8):
-        print(f"{task.id}: {task.description} (prio={task.priority})")
-
-    print("Сложный фильтр (PENDING + high priority):")
-    filtered = queue.filter(
-        lambda t: t.status == TaskStatus.PENDING and t.priority >= 7
-    )
-    for task in filtered:
-        print(f"{task.id}: {task.description}")
-
-
-def demo_python_constructs():
-    """Совместимость с конструкциями Python."""
-    print("\nСовместимость с Python")
-
-    queue = TaskQueue([
-        Task(1, "A", priority=5),
-        Task(2, "B", priority=3),
-        Task(3, "C", priority=7),
+    task_queue = TaskQueue([
+        Task(task_id=1, description="Deploy", priority=9, status=TaskStatus.PENDING),
+        Task(task_id=2, description="Docs", priority=2, status=TaskStatus.PENDING),
+        Task(task_id=3, description="Fix bug", priority=10, status=TaskStatus.PENDING),
     ])
 
-    print(f"len(queue) = {len(queue)}")
-    print(f"bool(queue) = {bool(queue)}")
-    print(f"queue[0] = {queue[0].description}")
-
-    print(f"сумма приоритетов: {sum(t.priority for t in queue)}")
-    print(f"list: {[t.id for t in queue]}")
-    print(f"максимальный по приоритету: {max(queue, key=lambda t: t.priority).description}")
-
-
-def main():
-    """Запуск всех демо."""
-    demo_basic_iteration()
-    demo_lazy_filtering()
-    demo_python_constructs()
+    executor = AsyncTaskExecutor(workers=2)
+    executor.register_handler(ReadyTaskHandler())
+    executor.register_handler(FallbackTaskHandler())
+    await executor.process_queue(task_queue)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(demo_async_executor())

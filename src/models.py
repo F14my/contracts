@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
-from exceptions import TaskInvalidStateError
-from descriptors import ValidatedString, PriorityDescriptor, LazyComputedProperty,IdDescriptor
+from src.exceptions import TaskInvalidStateError
+from src.descriptors import ValidatedString, PriorityDescriptor, LazyComputedProperty, IdDescriptor
 
 
 class TaskStatus(Enum):
